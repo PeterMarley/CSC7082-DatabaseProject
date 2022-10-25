@@ -1,0 +1,369 @@
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertAddress` (IN `AddressLine1` VARCHAR(255), IN `AddressLine2` VARCHAR(255), IN `Postcode` VARCHAR(255), IN `TownCityId` INT)   INSERT INTO address 
+	(
+        address.address_line_1,
+   		address.address_line_2,
+    	address.postcode,
+    	address.town_city_id
+    )
+VALUES 
+	(
+        AddressLine1,
+        AddressLine2,
+        Postcode,
+        TownCityId
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertAirport` (IN `AirportName` VARCHAR(255), IN `AirportIataCode` VARCHAR(3), IN `AirportGpsId` INT, IN `AddressId` INT)   INSERT INTO airport 
+	(
+        airport.airport_name,
+        airport.airport_iata_code,
+        airport.airport_gps_id,
+        airport.airport_address_id
+	)
+VALUES
+	(AirportName, AirportIataCode, AirportGpsId, AddressId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertBoardType` (IN `BoardTypeName` VARCHAR(255))   INSERT INTO board_type 
+	(board_type.board_type_name)
+VALUES 
+	(BoardTypeName)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertBooking` (IN `Ref` VARCHAR(255), IN `MadeTimestamp` TIMESTAMP, IN `CostGbp` DECIMAL(13,4), IN `BookingContactId` INT, IN `ReturnFlightId` INT, IN `OutboundFlightId` INT)   INSERT INTO booking 
+	(
+    	booking.booking_reference,
+        booking.booking_made_utc_datetime,
+        booking.total_cost_gbp,
+        booking.booking_contact_id,
+        booking.return_flight_id,
+        booking.outbound_flight_id
+    )
+VALUES 
+	(
+        Ref, 
+        MadeTimestamp, 
+        CostGbp, 
+        BookingContactId,
+        ReturnFlightId,
+        OutboundFlightId
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertBookingContact` (IN `AddressId` INT, IN `PassengerId` INT, IN `EmailId` INT)   INSERT INTO booking_contact
+	(
+        booking_contact.booking_contact_address_id,
+        booking_contact.booking_contact_passenger_id,
+        booking_contact.booking_contact_email_id
+    )
+VALUES 
+	(AddressId, PassengerId, EmailId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertBookingContactTelephone` (IN `BookingContactId` INT, IN `TelephoneId` INT)   INSERT INTO booking_contact_telephone 
+	(
+        booking_contact_telephone.booking_contact_telephone_booking_contact_id,
+        booking_contact_telephone.booking_contact_telephone_telephone_id
+    )
+VALUES
+	(BookingContactId, TelephoneId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertBookingPassenger` (IN `BookingId` INT, IN `PassengerId` INT)   INSERT INTO booking_passenger 
+	(
+        booking_passenger.booking_passenger_booking_id,
+        booking_passenger.booking_passenger_passenger_id
+    )
+VALUES
+	(BookingId, PassengerId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertCardVendor` (IN `CardVendorName` VARCHAR(255))   INSERT INTO card_vendor
+	(card_vendor.card_vendor_name)
+VALUES
+	(CardVendorName)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertCountry` (IN `CountryName` VARCHAR(255), IN `CountryDescription` TEXT)   INSERT INTO country
+	(country.country_name,
+    country.country_description)
+VALUES
+	(CountryName, CountryDescription)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertEmail` (IN `EmailAddress` TEXT)   INSERT INTO email
+	(email.email_address)
+VALUES
+	(EmailAddress)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertFlight` (IN `FlightRef` VARCHAR(255), IN `CheckIn` DATETIME, IN `Departure` DATETIME, IN `Arrival` DATETIME, IN `RouteId` INT(11))   INSERT INTO flight
+	(
+        flight.flight_reference,
+        flight.flight_checkin_utc_datetime,
+        flight.departure_utc_datetime,
+        flight.arrival_utc_datetime,
+        flight.route_id
+	)
+VALUES
+	(FlightRef, CheckIn, Departure, Arrival, RouteId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertFlightPrice` (IN `Price` DECIMAL(13,4), IN `ValidFrom` DATETIME, IN `ValidTo` DATETIME, IN `FlightId` INT(11))   INSERT INTO flight_price
+	(
+        flight_price.flight_price_gbp,
+        flight_price.flight_price_valid_from_datetime,
+        flight_price.flight_price_valid_to_datetime,
+        flight_price.flight_id
+	)
+VALUES
+	(Price, ValidFrom, ValidTo, FlightId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertGps` (IN `GpsLat` DECIMAL(8,6), IN `GpsLong` DECIMAL(9,6))   INSERT INTO gps	(gps.gps_latitude, gps.gps_longitude)
+VALUES (GpsLat, GpsLong)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertHotel` (IN `Name` VARCHAR(255), IN `HotelDescription` TEXT, IN `CheckIn` TIME, IN `CheckOut` TIME, IN `AdditionalInfo` TEXT, IN `LiftCount` INT, IN `FloorCount` INT, IN `GpsId` INT, IN `AddressId` INT, IN `HotelStarRatingId` INT)   INSERT INTO hotel 
+	(
+        hotel.hotel_name,
+        hotel.hotel_description,
+        hotel.hotel_check_in_local_time,
+        hotel.hotel_check_out_local_time,
+        hotel.hotel_additional_info,
+        hotel.hotel_lift_count,
+        hotel.hotel_floor_count,
+        hotel.hotel_gps_id,
+        hotel.hotel_address_id,
+        hotel.hotel_star_rating_id
+    )
+VALUES 
+	(
+        Name,
+        HotelDescription,
+        CheckIn,
+        CheckOut,
+        AdditionalInfo,
+        LiftCount,
+        FloorCount,
+        GpsId,
+        AddressId,
+        HotelStarRatingId
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertHotelBoardType` (IN `Fee` DECIMAL(13,4), IN `Description` TEXT, IN `BoardTypeId` INT(11), IN `HotelId` INT(11))   INSERT INTO hotel_board_type
+	(
+        hotel_board_type.hotel_board_fee_gbp,
+        hotel_board_type.board_type_description,
+        hotel_board_type.board_type_id,
+        hotel_board_type.hotel_id
+    )
+VALUES 
+	(Fee, Description, BoardTypeId, HotelId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertHotelFacility` (IN `Description` TEXT, IN `HotelId` INT, IN `FacilityTypeId` INT)   INSERT INTO hotel_facility
+	(
+        hotel_facility.hotel_facility_description,
+    	hotel_facility.hotel_id,
+    	hotel_facility.hotel_facility_type_id
+    )
+VALUES 
+	(Description, HotelId, FacilityTypeId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertHotelFacilityImage` (IN `HotelFacilityTypeId` INT, IN `ImageId` INT)   INSERT INTO hotel_facility_image
+	(
+        hotel_facility_image.hotel_facility_type_id,
+        hotel_facility_image.image_id
+    )
+VALUES 
+	(HotelFacilityTypeId, ImageId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertHotelFacilityType` (IN `FacilityTypeName` VARCHAR(255))   INSERT INTO hotel_facility_type 
+	(hotel_facility_type.hotel_facility_type_name)
+VALUES 
+	(FacilityTypeName)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertHotelImage` (IN `HotelId` INT, IN `ImageId` INT)   INSERT INTO hotel_image
+	(
+        hotel_image.hotel_id,
+        hotel_image.image_id
+	)
+VALUES (HotelId, ImageId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertImage` (IN `ImageUrl` TEXT, IN `ImageAltText` VARCHAR(255))   INSERT INTO image 
+	(
+        image.image_url,
+        image.image_alt_text
+    )
+VALUES 
+	(
+        ImageUrl,
+        ImageAltText
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertPassenger` (IN `PassengerFirstName` VARCHAR(255), IN `PassengerLastName` VARCHAR(255), IN `PassengerDob` DATE, IN `PassengerTitleId` INT, IN `PassengerPassportId` INT)   INSERT INTO passenger
+	(
+        passenger.passenger_first_name,
+    	passenger.passenger_last_name,
+    	passenger.passenger_date_of_birth,
+    	passenger.passenger_title_id,
+    	passenger.passenger_passport_id
+    )
+VALUES
+	(
+        PassengerFirstName,
+        PassengerLastName,
+        PassengerDob,
+        PassengerTitleId,
+        PassengerPassportId
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertPassport` (IN `PassportNumber` VARCHAR(255), IN `PassportExpiryDate` DATE, IN `PassportCountryId` INT)   INSERT INTO passport
+	(passport.passport_number,
+    passport.passport_expiry_date,
+    passport.passport_country_id)
+VALUES
+	(PassportNumber, PassportExpiryDate, PassportCountryId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertPayment` (IN `PaymentAmount` DECIMAL(13,4), IN `BookingId` INT, IN `CardId` INT)   INSERT INTO payment
+	(
+    	payment.payment_amount_gbp,
+        payment.booking_id,
+        payment.payment_card_id
+    )
+VALUES 
+	(PaymentAmount, BookingId, CardId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertPaymentCard` (IN `LongNum` VARBINARY(255), IN `Expiry` DATE, IN `BookingContactId` INT, IN `CardVendorId` INT)   INSERT INTO payment_card 
+	(
+    	payment_card.payment_card_long_number,
+        payment_card.payment_card_expiry_date,
+        payment_card.booking_contact_id,
+        payment_card.card_vendor_id
+    )
+VALUES 
+	(LongNum, Expiry, BookingContactId, CardVendorId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertReview` (IN `ReviewDate` DATE, IN `ReviewContent` TEXT, IN `ReviewHotelId` INT, IN `ReviewerId` INT, IN `ReviewRatingId` INT)   INSERT INTO review
+	(
+        review.review_date,
+        review.review_content,
+        review.review_hotel_id,
+        review.reviewer_id,
+        review.review_rating_id
+	)
+VALUES 
+	(
+        ReviewDate, 
+        ReviewContent, 
+        ReviewHotelId, 
+        ReviewerId, 
+        ReviewRatingId
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertReviewRating` (IN `ReviewRating` INT(1))   INSERT INTO review_rating (review_rating.review_rating)
+VALUES (ReviewRating)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoom` (IN `RoomNumber` VARCHAR(10), IN `RoomTypeId` INT)   INSERT INTO room
+	(
+        room.room_number,
+        room.room_type_id
+    )
+VALUES
+	(RoomNumber, RoomTypeId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoomBooking` (IN `BookingId` INT, IN `RoomId` INT)   INSERT INTO room_booking
+	(
+        room_booking.room_booking_booking_id,
+        room_booking.room_booking_room_id
+	)
+VALUES 
+	(BookingId, RoomId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoomFacility` (IN `RoomFacilityName` VARCHAR(255))   INSERT INTO room_facility (room_facility.room_facility_name)
+VALUES (RoomFacilityName)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoomImage` (IN `RoomTypeId` INT, IN `ImageId` INT)   INSERT INTO room_image
+	(
+        room_image.room_type_id,
+        room_image.image_id
+    )
+VALUES 
+	(RoomTypeId, ImageId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoomType` (IN `RoomTypeName` VARCHAR(255), IN `RoomTypeDesc` TEXT, IN `RoomTypeMinOcc` INT, IN `RoomTypeMaxOcc` INT, IN `RoomTypeBaseQuantity` INT, IN `RoomTypeHotelId` INT)   INSERT INTO room_type
+	(
+        room_type.room_type_name,
+        room_type.room_type_description,
+        room_type.room_type_min_occup,
+        room_type.room_type_max_occup,
+        room_type.base_quantity,
+        room_type.hotel_id
+    )
+VALUES
+	(
+        RoomTypeName,
+        RoomTypeDesc,
+        RoomTypeMinOcc,
+        RoomTypeMaxOcc,
+        RoomTypeBaseQuantity,
+        RoomTypeHotelId
+	)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoomTypeFacility` (IN `RoomTypeId` INT, IN `RoomFacilityId` INT)   INSERT INTO room_type_facility
+	(
+        room_type_facility.room_type_id,
+        room_type_facility.room_facility_id
+    )
+VALUES 
+	(RoomTypeId,RoomFacilityId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoomTypePrice` (IN `PriceGbp` DECIMAL(13,4), IN `ValidFromDt` DATE, IN `ValidToDt` DATE, IN `RoomTypeId` INT)   INSERT INTO room_type_price
+	(
+        room_type_price.room_type_price_gbp,
+        room_type_price.valid_from_utc_datetime,
+        room_type_price.valid_to_utc_datetime,
+        room_type_price.room_type_id
+	)
+VALUES 
+	(PriceGbp, ValidFromDt, ValidToDt, RoomTypeId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertRoute` (IN `RouteName` VARCHAR(255), IN `DepartureAirportId` INT, IN `ArrivalAirportId` INT)   INSERT INTO route
+	(
+        route.route_name,
+        route.departure_airport_id,
+        route.arrival_airport_id
+    )
+VALUES
+	(RouteName, DepartureAirportId, ArrivalAirportId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertStarRating` (IN `StarRatingName` VARCHAR(255))   INSERT INTO star_rating
+	(star_rating.star_rating_name)
+VALUES 
+	(StarRatingName)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertTelephone` (IN `TelephoneNumber` VARCHAR(50), IN `TelephoneTypeId` INT)   INSERT INTO telephone
+	(
+        telephone.telephone_number,
+     	telephone.telephone_type_id
+    )
+VALUES
+	(TelephoneNumber, TelephoneTypeId)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertTelephoneType` (IN `TelephoneTypeName` VARCHAR(255))   INSERT INTO telephone_type 
+	(
+        telephone_type.telephone_type_name
+    )
+VALUES
+	(
+        TelephoneTypeName
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertTitle` (IN `TitleAbbr` VARCHAR(10), IN `TitleName` VARCHAR(255))   INSERT INTO title 
+	(
+        title.title_abbreviation,
+        title.title_name
+    )
+VALUES 
+	(
+        TitleAbbr,
+        TitleName
+    )$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uspInsertTownCity` (IN `TownCityName` VARCHAR(255), IN `TownCityCountryId` INT)   INSERT INTO town_city
+	(town_city.town_city_name,
+     town_city.town_city_country_id)
+VALUES
+	(TownCityName,
+     TownCityCountryId)$$
