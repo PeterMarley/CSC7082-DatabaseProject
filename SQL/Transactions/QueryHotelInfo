@@ -2,7 +2,6 @@
 
 SET @TargetDate = '2023-01-01';
 
-
 SELECT hotel.hotel_name, room_type.room_type_name, room_type_price.room_type_price_gbp, room_type.room_type_base_quantity, @TargetDate AS `Date` FROM hotel
 INNER JOIN room_type ON room_type.room_type_hotel_id = hotel.hotel_id
 INNER JOIN room_type_price ON room_type_price.room_type_id = room_type.room_type_id

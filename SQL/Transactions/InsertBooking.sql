@@ -123,8 +123,17 @@ START TRANSACTION;
     SET @HolidayNightsDuration = 1;
     
     -- insert booking
-   	INSERT INTO booking (booking.booking_reference, booking.booking_duration, booking.total_cost_gbp, booking.booking_contact_id, booking.outbound_flight_id, booking.return_flight_id)
-    VALUES ('RANDREF123', 1, 0, @BookingContactId, @OutboundFlightId, @ReturnFlightId);
+   	INSERT INTO booking 
+        (
+            booking.booking_reference,
+            booking.booking_start_date,
+            booking.booking_duration,
+            booking.total_cost_gbp,
+            booking.booking_contact_id,
+            booking.outbound_flight_id,
+            booking.return_flight_id
+        )
+    VALUES ('RANDREF123', DATE(@TargetDateTime), 1, 0, @BookingContactId, @OutboundFlightId, @ReturnFlightId);
     SET @BookingId = LAST_INSERT_ID();
     
     -- insert booking line items
