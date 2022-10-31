@@ -37,10 +37,9 @@ START TRANSACTION;
     FROM flight 
     INNER JOIN route ON route.route_id = flight.route_id
     INNER JOIN route_price ON route_price.route_price_route_id = route.route_id
-    WHERE 
-        DATEDIFF(flight.departure_utc_datetime, @TargetDateTime) = 0  AND flight.route_id = @OutboundRouteId
-    AND
-        flight.departure_utc_datetime BETWEEN route_price.route_price_valid_from_datetime AND route_price.route_price_valid_to_datetime
+    WHERE DATEDIFF(flight.departure_utc_datetime, @TargetDateTime) = 0  
+    AND flight.route_id = @OutboundRouteId
+    AND flight.departure_utc_datetime BETWEEN route_price.route_price_valid_from_datetime AND route_price.route_price_valid_to_datetime
     LIMIT 1; -- user potentially given option to select particular outbound flight time on website
         
     -- get the return flight of interest
@@ -48,10 +47,9 @@ START TRANSACTION;
     FROM flight 
     INNER JOIN route ON route.route_id = flight.route_id
     INNER JOIN route_price ON route_price.route_price_route_id = route.route_id
-    WHERE 
-        DATEDIFF(flight.departure_utc_datetime, @TargetDateTime) = 0  AND flight.route_id = @ReturnRouteId
-    AND
-        flight.departure_utc_datetime BETWEEN route_price.route_price_valid_from_datetime AND route_price.route_price_valid_to_datetime
+    WHERE DATEDIFF(flight.departure_utc_datetime, @TargetDateTime) = 0  
+    AND flight.route_id = @ReturnRouteId
+    AND flight.departure_utc_datetime BETWEEN route_price.route_price_valid_from_datetime AND route_price.route_price_valid_to_datetime
     LIMIT 1; -- user potentially given option to select particular return flight time on website
     
    	/********************************
