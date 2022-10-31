@@ -5,12 +5,11 @@ START TRANSACTION;
     ********************************/
     
 	-- Get Countries
-    SELECT @NorthernIreland := country.country_id FROM country INNER JOIN country.country_location_name_id = location_name.location_name_id WHERE location_name.location_name = 'Northern Ireland';
-    SELECT @England := country.country_id FROM country INNER JOIN country.country_location_name_id = location_name.location_name_id WHERE location_name.location_name = 'England';
+    SELECT @UnitedKingdom := country.country_id FROM country INNER JOIN location_name ON country.country_location_name_id = location_name.location_name_id WHERE location_name.location_name = 'United Kingdom';
     
 	-- Get Titles
-    SELECT @Mr := title.title_abbreviation FROM title WHERE title.title_abbreviation = 'Mr';
-    SELECT @Mrs := title.title_abbreviation FROM title WHERE title.title_abbreviation = 'Mrs';
+    SELECT @Mr := title.title_id FROM title WHERE title.title_abbreviation = 'Mr';
+    SELECT @Mrs := title.title_id FROM title WHERE title.title_abbreviation = 'Mrs';
     
     /********************************
     -- FLIGHTS
@@ -52,15 +51,15 @@ START TRANSACTION;
     
     -- insert passports
     INSERT INTO passport (passport.passport_number, passport.passport_expiry_date, passport.passport_country_id)
-    VALUES ('PSP1234', '2025-11-22', @NorthernIreland);
+    VALUES ('DemoPPNumber1', '2025-11-22', @UnitedKingdom);
     SET @Passport1 = LAST_INSERT_ID();
     
     INSERT INTO passport (passport.passport_number, passport.passport_expiry_date, passport.passport_country_id)
-    VALUES ('PSP9874', '2030-03-03', @England);
+    VALUES ('DemoPPNumber2', '2030-03-03', @UnitedKingdom);
     SET @Passport2 = LAST_INSERT_ID();
     
     INSERT INTO passport (passport.passport_number, passport.passport_expiry_date, passport.passport_country_id)
-    VALUES ('5415454545', '2024-02-02', @England);
+    VALUES ('DemoPPNumber3', '2024-02-02', @UnitedKingdom);
     SET @Passport3 = LAST_INSERT_ID();
     
     -- insert passengers
@@ -90,6 +89,33 @@ START TRANSACTION;
     VALUES (@BookingContactAddress, @Passenger1, @BookingContactEmail);
     SET @BookingContactId = LAST_INSERT_ID();
     
+    SELECT @TelephoneTypeHomeOfficeId := telephone_type.telephone_type_id FROM telephone_type WHERE telephone_type.telephone_type_name = 'Home/ Office';
+    SELECT @TelephoneTypeMobileId := telephone_type.telephone_type_id FROM telephone_type WHERE telephone_type.telephone_type_name = 'Mobile';
+    SELECT @TelephoneTypeEmergencyId := telephone_type.telephone_type_id FROM telephone_type WHERE telephone_type.telephone_type_name = 'Emergency';
+
+    INSERT INTO telephone (telephone.telephone_number, telephone.telephone_type_id) VALUES ('1234578', @TelephoneTypeHomeOfficeId);
+    SET @Telephone1 = LAST_INSERT_ID();
+
+    INSERT INTO telephone (telephone.telephone_number, telephone.telephone_type_id) VALUES ('+44 098765412', @TelephoneTypeMobileId);
+    SET @Telephone2 = LAST_INSERT_ID();
+
+    INSERT INTO telephone (telephone.telephone_number, telephone.telephone_type_id) VALUES ('0-800-emergency', @TelephoneTypeEmergencyId);
+    SET @Telephone3 = LAST_INSERT_ID();
+
+    INSERT INTO booking_contact_telephone (booking_contact_telephone.booking_contact_telephone_booking_contact_id, booking_contact_telephone.booking_contact_telephone_telephone_id)
+    VALUES 
+        (@BookingContactId, @Telephone1),
+        (@BookingContactId, @Telephone2),
+        (@BookingContactId, @Telephone3);
+
+    -- booking passenger payment card
+    SET @PaymentCardSecret = 'JoeSatrianiIsTheBest'; -- weak secret, for demo purposes
+    SELECT @CardVendorId := card_vendor.card_vendor_id FROM card_vendor WHERE card_vendor.card_vendor_name = 'visa'; 
+
+    INSERT INTO payment_card (payment_card.payment_card_long_number, payment_card.payment_card_expiry_date, payment_card.booking_contact_id, payment_card.card_vendor_id)
+    VALUES (AES_ENCRYPT('1234 1234 5678 5678', @PaymentCardSecret), AES_ENCRYPT('2030-01-01', @PaymentCardSecret), @BookingContactId, @CardVendorId);
+    SET @PaymentCardId = LAST_INSERT_ID();
+
    	/********************************
     -- BOOKING
     ********************************/
@@ -105,9 +131,7 @@ START TRANSACTION;
     SELECT @LineItemHotelId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'hotel';
     SELECT @LineItemOutboundFlightId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'outbound flight';
     SELECT @LineItemReturnFlightId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'return flight';
-
-    INSERT INTO booking_line_item (booking_line_item.booking_line_item_price_gbp, booking_line_item.booking_line_item_type_id, booking_line_item.booking_line_item_booking_id)
-    VALUES (NULL, @HotelId, @LineItemHotelId, @BookingId);
+    SELECT @LineItemHotelBoardId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'board';
     
     SELECT @HotelId := hotel.hotel_id, hotel.hotel_name FROM hotel WHERE hotel.hotel_name = 'Spanish Hotel 1';
 
@@ -130,43 +154,65 @@ START TRANSACTION;
     SELECT @HotelBoardType2Id := hotel_board_type.hotel_board_type_id, @HotelBoardType2Cost := hotel_board_type.hotel_board_fee_gbp FROM hotel_board_type WHERE hotel_board_type.hotel_id = @HotelId AND hotel_board_type.board_type_id = @BoardType2Id;
 
     -- insert room_bookings
-    INSERT INTO room_booking (room_booking.room_booking_room_type_id, room_booking.room_booking_booking_id)
-    VALUES (@HotelRoomType1Id, @BookingId);
+    INSERT INTO room_booking (room_booking.room_booking_room_type_id, room_booking.room_booking_booking_id, room_booking.room_booking_hotel_board_type_id)
+    VALUES (@HotelRoomType1Id, @BookingId, @HotelBoardType1Id);
 
-    INSERT INTO room_booking (room_booking.room_booking_room_type_id, room_booking.room_booking_booking_id)
-    VALUES (@HotelRoomType2Id, @BookingId);
+    INSERT INTO room_booking (room_booking.room_booking_room_type_id, room_booking.room_booking_booking_id, room_booking.room_booking_hotel_board_type_id)
+    VALUES (@HotelRoomType2Id, @BookingId, @HotelBoardType2Id);
+
+    INSERT INTO booking_passenger (booking_passenger.booking_passenger_booking_id, booking_passenger.booking_passenger_passenger_id)
+    VALUES 
+        (@BookingId, @Passenger1),
+        (@BookingId, @Passenger2),
+        (@BookingId, @Passenger3);
 	
     /********************************
     -- BOOKING LINE ITEMS
     ********************************/
-    -- hotel rooms (2 for this booking)
-    INSERT INTO booking_line_item (booking_line_item.booking_line_item_price_gbp, booking_line_item.booking_line_item_type_id, booking_line_item.booking_line_item_booking_id)
-    VALUES (@HotelRoomType1Cost, @LineItemHotelId, @HotelRoomType1Cost, @BookingId);
-    
-    INSERT INTO booking_line_item (booking_line_item.booking_line_item_price_gbp, booking_line_item.booking_line_item_type_id, booking_line_item.booking_line_item_booking_id)
-    VALUES (@HotelRoomType2Cost, @LineItemHotelId, @HotelRoomType2Cost, @BookingId);
-    
+
     -- flights, outbound and return for each passenger
     INSERT INTO booking_line_item (booking_line_item.booking_line_item_price_gbp, booking_line_item.booking_line_item_type_id, booking_line_item.booking_line_item_booking_id)
     VALUES 
-        (@HotelRoomType1Cost,@LineItemHotelId,  @BookingId), -- hotel room 1 (including board cost)
-        (@HotelRoomType2Cost, @LineItemHotelId, @BookingId), -- hotel room 2 (including board cost)
-        (@OutboundFlightPrice, @LineItemOutboundFlightId, @BookingId), -- passenger 1 outbound flight
-        (@OutboundFlightPrice, @LineItemOutboundFlightId, @BookingId), -- passenger 2 outbound flight
-        (@OutboundFlightPrice, @LineItemOutboundFlightId, @BookingId), -- passenger 3 outbound flight
-        (@OutboundFlightPrice, @LineItemReturnFlightId, @BookingId), -- passenger 1 return flight
-        (@OutboundFlightPrice, @LineItemReturnFlightId, @BookingId), -- passenger 2 return flight
-        (@OutboundFlightPrice, @LineItemReturnFlightId, @BookingId); -- passenger 3 return flight
+        (@HotelRoomType1Cost,@LineItemHotelId,  @BookingId), -- hotel room 1 (excluding board cost)
+        (@HotelRoomType2Cost, @LineItemHotelId, @BookingId), -- hotel room 2 (excluding board cost)
+        (@HotelBoardType1Cost, @LineItemHotelBoardId, @BookingId), -- hotel room 1 board cost
+        (@HotelBoardType2Cost, @LineItemHotelBoardId, @BookingId), -- hotel room 2 board cost
+        (@OutboundFlightPrice, @LineItemOutboundFlightId, @BookingId), -- passenger 1 outbound flight cost
+        (@OutboundFlightPrice, @LineItemOutboundFlightId, @BookingId), -- passenger 2 outbound flight cost
+        (@OutboundFlightPrice, @LineItemOutboundFlightId, @BookingId), -- passenger 3 outbound flight cost
+        (@ReturnFlightPrice, @LineItemReturnFlightId, @BookingId), -- passenger 1 return flight cost
+        (@ReturnFlightPrice, @LineItemReturnFlightId, @BookingId), -- passenger 2 return flight cost
+        (@ReturnFlightPrice, @LineItemReturnFlightId, @BookingId); -- passenger 3 return flight cost
 
 	/********************************
     -- UPDATE BOOKING TOTAL PRICE
     ********************************/
+
+    -- gather total cost from line items
+    SELECT @BookingTotalCost := SUM(booking_line_item.booking_line_item_price_gbp) FROM booking_line_item WHERE booking_line_item.booking_line_item_booking_id = @BookingId;
     
-    UPDATE 
+    UPDATE booking SET booking.total_cost_gbp = @BookingTotalCost WHERE booking.booking_id = @BookingId;
     -- insert line items DONE
     -- insert booking contact DONE
     -- flights (stored via booking) DONE
 	-- accomodation (stored via room_booking) DONE
 	-- insert booking DONE
     -- update booking cost
+
+
+    /********************************
+    -- LEAVE A REVIEW (likely done post-holiday)
+    ********************************/
+
+    SELECT @ReviewRatingId := review_rating.review_rating_id FROM review_rating WHERE review_rating.review_rating = 3;
+
+    INSERT INTO review (review.review_content, review.reviewer_id, review.review_rating_id)
+    VALUES ('Was Ok. Crocodiles were a tad bitey.', @BookingContactId, @ReviewRatingId);
+
+    /********************************
+    -- LEAVE A REVIEW (likely done post-holiday)
+    ********************************/
+
+    INSERT INTO payment (payment.payment_amount_gbp, payment.booking_id, payment.payment_card_id) 
+    VALUES ('1000', @BookingId, @PaymentCardId);
 COMMIT;
