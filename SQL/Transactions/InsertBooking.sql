@@ -93,6 +93,7 @@ START TRANSACTION;
    	/********************************
     -- BOOKING AND ITS LINE ITEMS
     ********************************/
+    SET @HolidayNightsDuration = 1;
     
     -- insert booking
    	INSERT INTO booking (booking.booking_reference, booking.booking_duration, booking.total_cost_gbp, booking.booking_contact_id, booking.outbound_flight_id, booking.return_flight_id)
