@@ -1,13 +1,7 @@
 START TRANSACTION;
 
-/*
-3 main sections
-    personel
-    flights
-    hotel
-*/
 	/********************************
-    -- GET IDS FOR USE
+    -- GET COUNTRY AND TITLE IDS FOR USE
     ********************************/
     
 	-- Get Countries
@@ -19,7 +13,7 @@ START TRANSACTION;
     SELECT @Mrs := title.title_abbreviation FROM title WHERE title.title_abbreviation = 'Mrs';
     
     /********************************
-    -- GET FLIGHT IDS
+    -- FLIGHTS
     ********************************/
     
     SET @TargetDateTime = '2023-01-01 12:45:00';
@@ -33,7 +27,7 @@ START TRANSACTION;
     SELECT @ReturnRouteId := route.route_id, route.route_name FROM route WHERE route.departure_airport_id = @DestAirportId AND route.arrival_airport_id = @HomeAirportId;
 
     -- get the outbound flight of interest
-    SELECT @OutboundFlightId := flight.flight_id, route.route_name, route_price.route_price_gbp ,flight.flight_reference, flight.flight_checkin_utc_datetime, flight.departure_utc_datetime, flight.arrival_utc_datetime
+    SELECT @OutboundFlightId := flight.flight_id, route.route_name, @OutboundFlightPrice := route_price.route_price_gbp ,flight.flight_reference, flight.flight_checkin_utc_datetime, flight.departure_utc_datetime, flight.arrival_utc_datetime
     FROM flight 
     INNER JOIN route ON route.route_id = flight.route_id
     INNER JOIN route_price ON route_price.route_price_route_id = route.route_id
@@ -43,7 +37,7 @@ START TRANSACTION;
     LIMIT 1; -- user potentially given option to select particular outbound flight time on website
         
     -- get the return flight of interest
-    SELECT @ReturnFlightId := flight.flight_id, route.route_name, route_price.route_price_gbp ,flight.flight_reference, flight.flight_checkin_utc_datetime, flight.departure_utc_datetime, flight.arrival_utc_datetime
+    SELECT @ReturnFlightId := flight.flight_id, route.route_name, @ReturnFlightPrice := route_price.route_price_gbp ,flight.flight_reference, flight.flight_checkin_utc_datetime, flight.departure_utc_datetime, flight.arrival_utc_datetime
     FROM flight 
     INNER JOIN route ON route.route_id = flight.route_id
     INNER JOIN route_price ON route_price.route_price_route_id = route.route_id
@@ -53,7 +47,7 @@ START TRANSACTION;
     LIMIT 1; -- user potentially given option to select particular return flight time on website
     
    	/********************************
-    -- INSERT PASSENGERS AND THEIR DETAILS
+    -- PERSONEL
     ********************************/
     
     -- insert passports
@@ -94,14 +88,28 @@ START TRANSACTION;
     
 	INSERT INTO booking_contact (booking_contact.booking_contact_address_id, booking_contact.booking_contact_passenger_id, booking_contact.booking_contact_email_id)
     VALUES (@BookingContactAddress, @Passenger1, @BookingContactEmail);
+    SET @BookingContactId = LAST_INSERT_ID();
     
-    -- insert booking contact
-    	-- insert email
-        -- insert address
-        -- insert 
+   	/********************************
+    -- BOOKING AND ITS LINE ITEMS
+    ********************************/
+    
+    -- insert booking
+   	INSERT INTO booking (booking.booking_reference, booking.booking_duration, booking.total_cost_gbp, booking.booking_contact_id, booking.outbound_flight_id, booking.return_flight_id)
+    VALUES ('RANDREF123', 1, 0, @BookingContactId, @OutboundFlightId, @ReturnFlightId);
+    SET @BookingId = LAST_INSERT_ID();
+    
+    -- insert booking line items
+    SELECT @LineItemHotelId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'hotel';
+    SELECT @LineItemOutboundFlightId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'outbound flight';
+    SELECT @LineItemReturnFlightId := booking_line_item_type.booking_line_item_type_id FROM booking_line_item_type WHERE booking_line_item_type.booking_line_item_type_name = 'return flight';
+
+    INSERT INTO booking_line_item (booking_line_item.booking_line_item_price_gbp, booking_line_item.booking_line_item_type_id, booking_line_item.booking_line_item_booking_id)
+    VALUES (NULL, @HotelId, @LineItemHotelId, @BookingId);
+    
+    -- insert line items
+    -- insert booking contact DONE
+    -- flights DONE
 	-- accomodation
 	-- insert booking
-   
-   	INSERT INTO booking (booking.booking_reference, booking.booking_duration, booking.total_cost_gbp, booking.booking_contact_id, booking.outbound_flight_id, booking.return_flight_id)
-    VALUES ('RANDREF123', 1, 0, )
 COMMIT;
