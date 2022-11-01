@@ -13,7 +13,6 @@ remove booking
 remove booking_contact_telephone
 
 remove telephones 
-#  - (these go in correctly?)
 
 remove payment_card
 
@@ -24,7 +23,6 @@ remove booking_contact
 remove booking contact 
   address
   email
-#    - this go in correctly?
 
 remove 3 passengers
 
