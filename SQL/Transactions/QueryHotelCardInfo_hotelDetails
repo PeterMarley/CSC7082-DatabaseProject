@@ -25,14 +25,16 @@ GROUP BY hotel.hotel_id;
 
 -- hotel reviews
 
+SET @HotelName = 'Spanish Hotel 1';
+
 SELECT
-	hotel.hotel_name AS HotelName,
-	town_city.town_city_name AS ReviewerTown,
+    hotel.hotel_name AS HotelName,
+    town_city.town_city_name AS ReviewerTown,
     CountryName.location_name AS ReviewerCountry,
-	passenger.passenger_first_name AS ReviewerFirstName,
+    passenger.passenger_first_name AS ReviewerFirstName,
     passenger.passenger_last_name AS ReviewerLastName,
     DATE(review.review_timestamp) AS ReviewDate,
-    review.review_rating_id AS ReviewRating,
+    review_rating.review_rating AS ReviewRating,
     review.review_content AS Review
 FROM review
 INNER JOIN booking_contact ON booking_contact.booking_contact_id = review.reviewer_id
