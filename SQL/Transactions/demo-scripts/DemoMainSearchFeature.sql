@@ -138,4 +138,5 @@ AND
  		OR @PassengersChild = 0
 	)
 AND hotel.hotel_resort_id IN (SELECT resort.resort_id FROM resort WHERE resort.resort_name LIKE '%Benidorm%' OR resort.resort_name LIKE '%Calpe%');
+
 SELECT * FROM RoomsAvailable;
